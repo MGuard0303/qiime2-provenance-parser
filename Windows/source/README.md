@@ -29,7 +29,7 @@ system security features is unnecessary.
 ### Always-on parameters and English interface
 
 The interface is fully English. **QIIME Parameters** is the default tab when the
-window opens and after selecting a parsed file. Detailed mode is always enabled;
+window opens. Detailed mode is always enabled;
 there is no Verbose button or checkbox. Each step lists the parameter names and
 JSON values recorded in `action.yaml`, the execution UUID, and the evidence ZIP
 member in dependency order. Multiple outputs from one execution appear once.
@@ -63,8 +63,9 @@ and TXT / JSON / HTML export.
 The launcher starts Python in isolated mode. It does not depend on a system
 Python installation, user site-packages, `PYTHONPATH`, or conda. Qt plugin paths
 point to the application's own files. The app uses the Windows platform plugin
-and readable 11 pt Segoe UI / Consolas fonts, with native system fallbacks when
-unavailable. Required Qt Widgets and Visual C++ DLLs are included. White panels
+and readable 11 pt fonts, preferring Segoe UI / Consolas with native system
+fallbacks when unavailable. The Wine acceptance environment used an 11 pt
+Tahoma interface fallback. Required Qt Widgets and Visual C++ DLLs are included. White panels
 and dark-gray controls use a grayscale palette, including selections and
 keyboard focus. Parameter tables use bold headings and no custom fill colors.
 High-DPI support is retained. Offline HTML has English language metadata and
@@ -123,6 +124,25 @@ Add `--data-root "D:\data\ds-20200228"` to scan real QZA/QZV files, or add
 `--screenshot "C:\Temp\preview.png"` to save the acceptance-test interface.
 The output path's parent directory must already exist.
 
+### Current v1.2.0 validation
+
+- Both current source test suites passed **24 tests each**. Strict mypy and Ruff
+  checks passed for both platform implementations and their helper scripts.
+- The packaged Windows runtime passed the same **24 tests** under **Wine 11.0
+  on macOS arm64**, using Windows Python and Qt. Native Windows testing has
+  not been performed.
+- Each platform's parser matched the legacy parser across all **36 real QZA/QZV
+  archives**. The macOS GUI check covered **115 executions and 894 recorded
+  parameters**, verifying their display and exports.
+- The standalone macOS window and its English file chooser were inspected in
+  native macOS. Default parameter display, English controls, readable fonts and
+  neutral grayscale appearance were checked.
+
+The platform-root `build-validation.json` summarizes current v1.2.0 acceptance.
+Individual runtime, native-interface, real-archive and source-test records keep
+the detailed evidence. `archive/v1.1.0-validation/` contains snapshots of earlier
+records; its results are historical and do not describe this new build.
+
 ### Historical v1.1.0 validation and limits
 
 The following figures describe v1.1.0, and do not establish acceptance of v1.2.0.
@@ -137,7 +157,7 @@ events, background parsing, error isolation, parameter toggling, UTF-8 exports,
 search, and file removal. All **22 QZA and 14 QZV** files in the provided data
 directory were parsed successfully.
 
-Detailed results are in the delivery's validation JSON files. **There are
+Historical detailed results are in `archive/v1.1.0-validation/`. **There are
 currently no test results from a native Windows computer.** Wine acceptance
 does not establish certification on physical Windows 10/11 machines. The
 interface preview also explicitly identifies the Wine environment.
@@ -178,7 +198,7 @@ SHA-256，按所在单位的软件使用规则处理系统提示，无需关闭�
 
 ### 默认完整参数与英文界面
 
-界面全部采用英文。窗口打开及切换到已解析文件时默认显示 **QIIME Parameters** 页。
+界面全部采用英文。窗口打开时默认显示 **QIIME Parameters** 页。
 详细模式始终启用，已移除 Verbose 按钮及复选框。每一步按依赖顺序显示
 `action.yaml` 中的参数名与 JSON 值、执行 UUID 和 ZIP 内证据位置；同一次执行的
 多个输出只展示一次，未记录参数的步骤会明确说明。**Evidence Chain** 步骤详情、
@@ -207,7 +227,8 @@ SHA-256，按所在单位的软件使用规则处理系统提示，无需关闭�
 
 启动器以 Python 隔离模式启动，不依赖电脑已有 Python、用户 site-packages、
 `PYTHONPATH` 或 conda。Qt 插件路径指向应用自身，使用 Windows 平台插件和
-11 pt Segoe UI / Consolas 字体；不可用时使用系统字体。Qt Widgets 所需 DLL 和
+11 pt 字体，优先 Segoe UI / Consolas；不可用时使用系统字体。
+Wine 验收环境实际使用了 11 pt Tahoma 界面回退字体。Qt Widgets 所需 DLL 和
 Visual C++ DLL 随包提供。白色面板与深灰控件采用灰阶配色，选中状态和键盘焦点
 均有清晰反馈。参数表列标题加粗，不设置自定义底纹颜色。高 DPI 支持保留，
 离线 HTML 使用英文语言标记及中性易读字体。
@@ -254,6 +275,21 @@ python -m pytest -q
 可追加 `--data-root "D:\data\ds-20200228"` 扫描真实 QZA/QZV，或追加
 `--screenshot "C:\Temp\preview.png"` 保存验收界面。输出路径的父文件夹需存在。
 
+### 当前 v1.2.0 验证
+
+- 两套当前源码测试各通过 **24 项**；两平台实现及辅助脚本的严格 mypy 和 Ruff
+  检查均通过。
+- Windows 交付运行库在 **Wine 11.0 / macOS arm64** 中使用 Windows Python 和 Qt，
+  同样通过 **24 项测试**。尚未进行原生 Windows 电脑实机验证。
+- 两平台解析器分别与旧解析器核对全部 **36 个真实 QZA/QZV 归档**。macOS GUI
+  检查覆盖 **115 次执行及 894 项记录参数**，核对了界面显示与导出。
+- 已在原生 macOS 检查独立应用窗口及英文文件选择对话框，核对默认参数显示、
+  英文控件、字体可读性及灰阶外观。
+
+平台根目录 `build-validation.json` 汇总当前 v1.2.0 验收结果，各运行库、原生界面、
+真实归档及源码测试记录保留详细证据。`archive/v1.1.0-validation/` 存放旧记录快照，
+这些材料属于历史结果，不描述当前构建。
+
 ### 历史 v1.1.0 验证与边界
 
 以下数字描述 v1.1.0，不作为 v1.2.0 已通过验收的结论。每次发布均在平台目录保存
@@ -265,7 +301,7 @@ Windows Python、Windows Qt DLL 与 `windows` 平台插件。验收覆盖中文�
 拖拽事件、后台解析、错误隔离、参数切换、UTF-8 导出、搜索与文件移除。
 已成功解析提供的数据目录中全部 **22 个 QZA 和 14 个 QZV**。
 
-详细测试结果见交付目录的验证 JSON。**当前没有原生 Windows 电脑实机测试结果**；
+历史详细测试结果见 `archive/v1.1.0-validation/`。**当前没有原生 Windows 电脑实机测试结果**；
 Wine 验收不能等同于 Windows 10/11 实机认证。界面预览也明确标为 Wine 环境。
 
 解析内核保留每个 artifact 的证据，按可达输入图拓扑排序；同一次 execution 的多个

@@ -45,7 +45,7 @@ uses a separate Python 3.12 conda environment. Its runtime dependencies are
 **PySide6 Essentials (Qt Widgets) and PyYAML**.
 
 ```bash
-cd /path/to/qiime2-provenance-gui
+cd /path/to/qiime2-provenance-parser/macOS/source
 conda env create -f environment.yml
 conda activate qiime2-provenance-gui
 qiime2-provenance
@@ -123,7 +123,26 @@ relationships, member locations, runtime, and recorded parameters. GUI exports
 always include parameters; the legacy CLI retains its verbosity option. The complete
 original action YAML is available in the GUI.
 
-### Historical v1.1.0 verification and current release records
+### Current v1.2.0 validation
+
+- Both current source test suites passed **24 tests each**. Strict mypy and Ruff
+  checks passed for both platform implementations and their helper scripts.
+- The packaged Windows runtime passed the same **24 tests** under **Wine 11.0
+  on macOS arm64**, using Windows Python and Qt. Native Windows testing has
+  not been performed.
+- Each platform's parser matched the legacy parser across all **36 real QZA/QZV
+  archives**. The macOS GUI check covered **115 executions and 894 recorded
+  parameters**, verifying their display and exports.
+- The standalone macOS window and its English file chooser were inspected in
+  native macOS. Default parameter display, English controls, readable fonts and
+  neutral grayscale appearance were checked.
+
+The platform-root `build-validation.json` summarizes current v1.2.0 acceptance.
+Individual runtime, native-interface, real-archive and source-test records keep
+the detailed evidence. `archive/v1.1.0-validation/` contains snapshots of earlier
+records; its results are historical and do not describe this new build.
+
+### Historical v1.1.0 verification
 
 The figures below describe the historical v1.1.0 delivery. They do not establish
 acceptance of v1.2.0. Each new release stores its own validation records in the
@@ -137,7 +156,7 @@ Every action record matched the original parser, including those from the
 approximately 2.96 GB `demux-cutadapt.qza`, multi-branch taxonomy, and a classifier
 with multiple outputs. Source file sizes and modification times were compared
 before and after parsing. No full hash or CRC scan of the data area was performed.
-See `real-artifact-validation.json` in the delivery directory for the complete
+See `archive/v1.1.0-validation/real-artifact-validation.json` for the historical
 file list, statistics, and comparison results.
 
 Technical documentation: [Qt for Python](https://doc.qt.io/qtforpython-6/) and
@@ -147,8 +166,7 @@ information and licenses are provided in `THIRD_PARTY_NOTICES.md` and `licenses/
 ### Always-on parameters and readable English interface
 
 The interface is fully English. **QIIME Parameters** is selected when the window
-opens and after loading a parsed file. Detailed mode is always active, with no
-Verbose button or checkbox. Each step shows the parameter names and JSON values
+opens. Detailed mode is always active, with no Verbose button or checkbox. Each step shows the parameter names and JSON values
 recorded in `action.yaml`, its execution UUID, and its evidence ZIP member in
 dependency order. Multiple outputs of one execution are grouped once. Empty
 parameter records are explicitly identified. Original names and value types are
@@ -206,7 +224,7 @@ conda、Python 或 QIIME 2，也无需联网。可将整个 `.app` 拷贝到 App
 运行依赖只有 **PySide6 Essentials（Qt Widgets）与 PyYAML**。
 
 ```bash
-cd /path/to/qiime2-provenance-gui
+cd /path/to/qiime2-provenance-parser/macOS/source
 conda env create -f environment.yml
 conda activate qiime2-provenance-gui
 qiime2-provenance
@@ -273,7 +291,22 @@ JSON 导出的 `schema_version` 当前为 1，包含源路径、类型、UUID、
 运行时间与记录参数。GUI 导出始终包含参数，历史 CLI 保留自己的详细模式选项。
 原始 action YAML 的完整内容在 GUI 中查看。
 
-### 历史 v1.1.0 验证与当前发布记录
+### 当前 v1.2.0 验证
+
+- 两套当前源码测试各通过 **24 项**；两平台实现及辅助脚本的严格 mypy 和 Ruff
+  检查均通过。
+- Windows 交付运行库在 **Wine 11.0 / macOS arm64** 中使用 Windows Python 和 Qt，
+  同样通过 **24 项测试**。尚未进行原生 Windows 电脑实机验证。
+- 两平台解析器分别与旧解析器核对全部 **36 个真实 QZA/QZV 归档**。macOS GUI
+  检查覆盖 **115 次执行及 894 项记录参数**，核对了界面显示与导出。
+- 已在原生 macOS 检查独立应用窗口及英文文件选择对话框，核对默认参数显示、
+  英文控件、字体可读性及灰阶外观。
+
+平台根目录 `build-validation.json` 汇总当前 v1.2.0 验收结果，各运行库、原生界面、
+真实归档及源码测试记录保留详细证据。`archive/v1.1.0-validation/` 存放旧记录快照，
+这些材料属于历史结果，不描述当前构建。
+
+### 历史 v1.1.0 验证
 
 以下数字描述历史 v1.1.0 交付，不作为 v1.2.0 已通过验收的结论。
 每次新发布均在平台交付目录保存独立验证记录；文档与包检查和功能结果分别记录。
@@ -282,7 +315,8 @@ v1.1.0 两平台各有 23 项源码测试，GUI 证据检查覆盖 115 个步骤
 v1.1.0 的真实数据目录中 22 个 QZA 与 14 个 QZV 全量通过，所有 action 记录与原解析器一致，
 包括约 2.96 GB 的 demux-cutadapt.qza、多分支 taxonomy 和多输出 classifier。
 校验采用源文件大小与修改时间的前后对照；未对数据区执行完整哈希或 CRC 扫描。
-详细文件清单、统计与比较结果见交付目录的 `real-artifact-validation.json`。
+历史详细文件清单、统计与比较结果见
+`archive/v1.1.0-validation/real-artifact-validation.json`。
 
 技术文档：[Qt for Python](https://doc.qt.io/qtforpython-6/)、
 [PyInstaller](https://pyinstaller.org/en/stable/usage.html)。第三方组件信息和许可证
@@ -290,7 +324,7 @@ v1.1.0 的真实数据目录中 22 个 QZA 与 14 个 QZV 全量通过，所有 
 
 ### 默认完整参数与易读英文界面
 
-界面全部采用英文。窗口启动及切换到已解析文件时默认打开 **QIIME Parameters** 页。
+界面全部采用英文。窗口启动时默认打开 **QIIME Parameters** 页。
 详细模式始终启用，已移除 Verbose 按钮及复选框。每一步按依赖顺序显示
 `action.yaml` 中的参数名与 JSON 值、执行 UUID 和 ZIP 内证据位置；
 同一次执行的多个输出合并展示，空参数记录会明确说明。参数名与值保留原类型，

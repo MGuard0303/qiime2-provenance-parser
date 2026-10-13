@@ -106,12 +106,16 @@ and version numbers were unchanged; affected packaging, resource
 signatures and checksums are refreshed to reflect the documentation changes.
 Markdown files inside the release ZIPs are synchronized with the revised copies.
 
-Existing JSON/XML records describe the original build, tests and migration, and
-may contain historical absolute paths. Their original evidence remains historical;
-it does not claim that old hashes or ZIP sizes describe the revised documentation
-packages. The local `docs/copy-verification.json` records the migration-time copy.
-New documentation checks are recorded separately from the original functional
-tests. This README and AGENTS.md define the current maintenance entry points.
+Current `macOS/build-validation.json` and `Windows/build-validation.json`
+summarize v1.2.0. Detailed platform-root records cover current source tests,
+standalone runtime acceptance, real-archive comparison and interface checks.
+`macOS/archive/v1.1.0-validation/` and
+`Windows/archive/v1.1.0-validation/` retain snapshots of older JSON/XML evidence,
+which may contain historical absolute paths. Older hashes and ZIP sizes describe
+their original build, rather than this release. The local
+`docs/copy-verification.json` records the migration-time copy. Documentation and
+package checks remain separate from functional results. This README and
+AGENTS.md define the current maintenance entry points.
 
 ### Development and builds
 
@@ -222,6 +226,25 @@ running, building and testing instructions.
 
 ### Verification scope and licenses
 
+#### Current v1.2.0 validation
+
+- Both current source test suites passed **24 tests each**. Strict mypy and Ruff
+  checks passed for both platform implementations and their helper scripts.
+- The packaged Windows runtime passed the same **24 tests** under **Wine 11.0
+  on macOS arm64**, using Windows Python and Qt. Native Windows testing has
+  not been performed.
+- Each platform's parser matched the legacy parser across all **36 real QZA/QZV
+  archives**. The macOS GUI check covered **115 executions and 894 recorded
+  parameters**, verifying their display and exports.
+- The standalone macOS window and its English file chooser were inspected in
+  native macOS. Default parameter display, English controls, readable fonts and
+  neutral grayscale appearance were checked.
+
+The platform-root `build-validation.json` summarizes current v1.2.0 acceptance.
+Individual runtime, native-interface, real-archive and source-test records keep
+the detailed evidence. `archive/v1.1.0-validation/` contains snapshots of earlier
+records; its results are historical and do not describe this new build.
+
 The historical v1.1.0 delivery records show 23 tests per platform and comparisons
 against 36 real QZA/QZV archives, with GUI checks covering 115 steps and 894
 recorded parameters. These figures describe v1.1.0 and are not claims of
@@ -320,11 +343,12 @@ qiime2-provenance-parser/
 `macOS/QIIME2-Provenance-Studio-macOS-source-v1.2.0.zip` 和
 `Windows/QIIME2-Provenance-Studio-Windows-source-v1.2.0.zip`。
 
-各交付中原有的 JSON、XML 和说明文件是对应版本的历史验证证据，可能含有旧绝对路径。
-原记录的文件大小及哈希描述原交付或迁移时点，不能作为双语文档更新后压缩包的当前测量；
-本次文档、链接和交付校验结果单独记录，不当作重新执行了历史功能测试。
-这些路径记录当时的构建和测试来源，迁移时保留原文；本 README 和 AGENTS.md 指定的
-新目录是后续维护入口。本地 `docs/copy-verification.json` 记录本次复制关系。
+当前 `macOS/build-validation.json` 和 `Windows/build-validation.json` 汇总 v1.2.0。
+平台根目录详细记录覆盖当前源码测试、独立运行库验收、真实归档核对和界面检查。
+`macOS/archive/v1.1.0-validation/` 与 `Windows/archive/v1.1.0-validation/`
+保留旧 JSON/XML 证据快照，可能含历史绝对路径；旧哈希和 ZIP 大小描述原构建，
+不描述当前发布。本地 `docs/copy-verification.json` 记录迁入时的复制关系。
+文档与包检查和功能结果分别记录，本 README 与 AGENTS.md 定义当前维护入口。
 
 ### 开发与构建
 
@@ -414,6 +438,21 @@ python tools/update_file_report.py
 两平台源码 README 运行、构建和测试程序。
 
 ### 验证范围与许可证
+
+#### 当前 v1.2.0 验证
+
+- 两套当前源码测试各通过 **24 项**；两平台实现及辅助脚本的严格 mypy 和 Ruff
+  检查均通过。
+- Windows 交付运行库在 **Wine 11.0 / macOS arm64** 中使用 Windows Python 和 Qt，
+  同样通过 **24 项测试**。尚未进行原生 Windows 电脑实机验证。
+- 两平台解析器分别与旧解析器核对全部 **36 个真实 QZA/QZV 归档**。macOS GUI
+  检查覆盖 **115 次执行及 894 项记录参数**，核对了界面显示与导出。
+- 已在原生 macOS 检查独立应用窗口及英文文件选择对话框，核对默认参数显示、
+  英文控件、字体可读性及灰阶外观。
+
+平台根目录 `build-validation.json` 汇总当前 v1.2.0 验收结果，各运行库、原生界面、
+真实归档及源码测试记录保留详细证据。`archive/v1.1.0-validation/` 存放旧记录快照，
+这些材料属于历史结果，不描述当前构建。
 
 历史 v1.1.0 交付记录两平台各通过 23 项测试，并核对 36 个真实 QZA/QZV，
 GUI 检查覆盖 115 个步骤及 894 项记录参数。以上数字描述 v1.1.0，
