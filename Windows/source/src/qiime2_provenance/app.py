@@ -10,18 +10,14 @@ from PySide6.QtCore import QEvent, Qt, QThread, QTimer, QUrl, Signal, Slot
 from PySide6.QtGui import (
     QAction,
     QCloseEvent,
-    QColor,
     QDragEnterEvent,
     QDropEvent,
     QFileOpenEvent,
-    QFont,
     QIcon,
     QKeySequence,
-    QPalette,
 )
 from PySide6.QtWidgets import (
     QApplication,
-    QCheckBox,
     QFileDialog,
     QFrame,
     QHBoxLayout,
@@ -44,7 +40,7 @@ from PySide6.QtWidgets import (
 from . import __version__
 from .parser import ActionRecord, Report, parse_archive
 from .render import render_action, render_html, render_parameters, render_text
-from .style import STYLESHEET
+from .style import configure_application, monospace_font
 
 
 class ParseWorker(QThread):
@@ -79,7 +75,7 @@ def label(text: str, name: str = "muted") -> QLabel:
     """Create a wrapping text label with a semantic theme role."""
     widget = QLabel(text)
     widget.setObjectName(name)
-    widget.setWordWrap(True)
+    widget.setWordWrap(name != "brand")
     return widget
 
 
@@ -91,7 +87,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("QIIME 2 · Provenance Studio")
         self.resize(1220, 850)
-        self.setMinimumSize(940, 670)
+        self.setMinimumSize(980, 740)
         self.setAcceptDrops(True)
         self.paths: list[Path] = []
         self.reports: dict[str, Report] = {}
@@ -115,16 +111,16 @@ class MainWindow(QMainWindow):
         header = QHBoxLayout()
         title = QVBoxLayout()
         title.addWidget(label("PROVENANCE STUDIO", "eyebrow"))
-        title.addWidget(label("QIIME 2  /  方法与证据", "brand"))
+        title.addWidget(label("QIIME 2  /  Methods & Evidence", "brand"))
         header.addLayout(title)
         header.addStretch()
-        header.addWidget(label(f"本地解析   ·   v{__version__}", "muted"))
+        header.addWidget(label(f"Local analysis   ·   v{__version__}", "muted"))
         outer.addLayout(header)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.setChildrenCollapsible(False)
         sidebar = QWidget()
-        sidebar.setMinimumWidth(285)
+        sidebar.setMinimumWidth(300)
         left = QVBoxLayout(sidebar)
         left.setContentsMargins(0, 0, 0, 0)
         left.setSpacing(14)
@@ -134,28 +130,24 @@ class MainWindow(QMainWindow):
         box = QVBoxLayout(controls)
         box.setContentsMargins(18, 18, 18, 18)
         box.setSpacing(10)
-        box.addWidget(label("工作区", "heading"))
-        box.addWidget(label("加载文件，追溯分析过程。"))
-        self.add_button = QPushButton("＋  添加文件")
+        box.addWidget(label("Workspace", "heading"))
+        box.addWidget(label("Load files and trace their analysis history."))
+        self.add_button = QPushButton("Add Files")
         self.add_button.clicked.connect(self.choose_files)
         box.addWidget(self.add_button)
-        self.parse_button = QPushButton("解析全部文件")
+        self.parse_button = QPushButton("Parse All Files")
         self.parse_button.setObjectName("primary")
         self.parse_button.clicked.connect(self.start_parsing)
         box.addWidget(self.parse_button)
-        self.verbose = QCheckBox("Verbose：显示 QIIME 参数")
-        self.verbose.setToolTip("查看每一步记录的参数；复制和导出也包含参数。")
-        self.verbose.toggled.connect(self.set_verbose)
-        box.addWidget(self.verbose)
         row = QHBoxLayout()
-        self.export_button = QPushButton("导出报告")
+        self.export_button = QPushButton("Export Report")
         self.export_button.clicked.connect(self.export_report)
-        self.copy_button = QPushButton("复制结果")
+        self.copy_button = QPushButton("Copy Report")
         self.copy_button.clicked.connect(self.copy_report)
         row.addWidget(self.export_button)
         row.addWidget(self.copy_button)
         box.addLayout(row)
-        self.cancel_button = QPushButton("停止（完成当前文件后）")
+        self.cancel_button = QPushButton("Stop After Current File")
         self.cancel_button.clicked.connect(self.cancel_parsing)
         self.cancel_button.hide()
         box.addWidget(self.cancel_button)
@@ -165,21 +157,25 @@ class MainWindow(QMainWindow):
         files_panel.setObjectName("panel")
         files_box = QVBoxLayout(files_panel)
         files_box.setContentsMargins(18, 18, 18, 14)
-        files_box.addWidget(label("文件", "heading"))
-        files_box.addWidget(label("将 .qza / .qzv 拖到窗口\n支持多选，原文件以只读方式打开。"))
+        files_box.addWidget(label("Files", "heading"))
+        files_box.addWidget(
+            label(
+                "Drop .qza / .qzv files here.\nMultiple files supported; originals stay read-only."
+            )
+        )
         self.file_list = QListWidget()
         self.file_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.file_list.setWordWrap(False)
-        self.file_list.setAccessibleName("已加载的 QIIME 2 文件")
+        self.file_list.setAccessibleName("Loaded QIIME 2 files")
         self.file_list.setTextElideMode(Qt.TextElideMode.ElideMiddle)
         self.file_list.currentRowChanged.connect(self.select_file)
         files_box.addWidget(self.file_list, 1)
-        self.file_count = label("0 个文件")
+        self.file_count = label("0 files")
         files_box.addWidget(self.file_count)
         file_tools = QHBoxLayout()
-        self.remove_button = QPushButton("移除所选")
+        self.remove_button = QPushButton("Remove Selected")
         self.remove_button.clicked.connect(self.remove_selected)
-        self.clear_button = QPushButton("清空列表")
+        self.clear_button = QPushButton("Clear All")
         self.clear_button.clicked.connect(self.clear_files)
         file_tools.addWidget(self.remove_button)
         file_tools.addWidget(self.clear_button)
@@ -191,20 +187,20 @@ class MainWindow(QMainWindow):
         right = QVBoxLayout(results)
         right.setContentsMargins(24, 20, 24, 18)
         right.setSpacing(10)
-        right.addWidget(label("解析结果", "eyebrow"))
-        self.result_title = label("从一个文件，读懂整个分析过程", "heading")
+        right.addWidget(label("ANALYSIS RESULTS", "eyebrow"))
+        self.result_title = label("Trace the analysis behind each file", "heading")
         self.result_title.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         right.addWidget(self.result_title)
-        self.result_type = label("添加 QIIME 2 文件后，点击左侧解析按钮。")
+        self.result_type = label("Add QIIME 2 files, then select Parse All Files.")
         right.addWidget(self.result_type)
         metrics = QHBoxLayout()
         metrics.setSpacing(28)
         self.action_count = label("—", "metric")
         self.artifact_count = label("—", "metric")
-        self.evidence_status = label("等待文件", "muted")
+        self.evidence_status = label("Waiting for files", "muted")
         for value, caption in [
-            (self.action_count, "次方法执行"),
-            (self.artifact_count, "个 Artifact"),
+            (self.action_count, "method executions"),
+            (self.artifact_count, "artifacts"),
         ]:
             metric = QVBoxLayout()
             metric.addWidget(value)
@@ -218,83 +214,95 @@ class MainWindow(QMainWindow):
         chain = QWidget()
         chain_layout = QVBoxLayout(chain)
         chain_layout.setContentsMargins(0, 12, 0, 0)
-        chain_layout.addWidget(label("按依赖顺序排列 · 分支流程可并行 · 点击步骤查看证据"))
+        chain_layout.addWidget(
+            label(
+                "Dependency order · Branches may run in parallel · "
+                "Select a step to inspect its evidence"
+            )
+        )
         chain_split = QSplitter(Qt.Orientation.Vertical)
         chain_split.setChildrenCollapsible(False)
         self.action_list = QListWidget()
         self.action_list.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
         self.action_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.action_list.setMinimumHeight(100)
-        self.action_list.setAccessibleName("方法证据链")
+        self.action_list.setAccessibleName("Method evidence chain")
         self.action_list.currentRowChanged.connect(self.select_action)
         self.action_detail = QTextBrowser()
         self.action_detail.setOpenLinks(False)
         self.action_detail.anchorClicked.connect(self.follow_artifact)
-        self.action_detail.document().setDefaultFont(QFont("Segoe UI", 11))
+        self.action_detail.document().setDefaultFont(QApplication.font())
         self.action_detail.setHtml(
-            "<h3>每一步都有来源</h3><p>这里将显示方法、输入依赖、UUID 与参数。</p>"
+            "<h3>Evidence for every step</h3>"
+            "<p>Inspect methods, input dependencies, UUIDs and recorded parameters.</p>"
         )
         chain_split.addWidget(self.action_list)
         chain_split.addWidget(self.action_detail)
         chain_split.setSizes([255, 280])
         chain_layout.addWidget(chain_split, 1)
-        self.tabs.addTab(chain, "证据链")
+        self.tabs.addTab(chain, "Evidence Chain")
 
         self.parameters_view = QTextBrowser()
         self.parameters_view.setOpenLinks(False)
-        self.parameters_view.setAccessibleName("每一步的 QIIME 参数")
-        self.parameters_view.document().setDefaultFont(QFont("Segoe UI", 11))
-        self.parameters_view.setPlainText("勾选左侧 Verbose，查看每一步的 QIIME 参数。")
-        self.tabs.addTab(self.parameters_view, "QIIME 参数")
+        self.parameters_view.setAccessibleName("QIIME parameters for every step")
+        self.parameters_view.document().setDefaultFont(QApplication.font())
+        self.parameters_view.setPlainText("Parse a file to inspect every recorded QIIME parameter.")
+        self.tabs.addTab(self.parameters_view, "QIIME Parameters")
 
         report_page = QWidget()
         report_layout = QVBoxLayout(report_page)
         report_layout.setContentsMargins(0, 10, 0, 0)
         search_row = QHBoxLayout()
         self.search = QLineEdit()
-        self.search.setPlaceholderText("在完整报告中搜索方法、UUID 或参数…")
+        self.search.setPlaceholderText("Search methods, UUIDs or parameters in the full report…")
         self.search.returnPressed.connect(self.find_text)
         search_row.addWidget(self.search)
-        next_button = QPushButton("查找下一个")
+        next_button = QPushButton("Find Next")
         next_button.clicked.connect(self.find_text)
         search_row.addWidget(next_button)
         report_layout.addLayout(search_row)
         self.full_report = QPlainTextEdit()
         self.full_report.setReadOnly(True)
-        self.full_report.setFont(QFont("Consolas", 11))
+        self.full_report.setFont(monospace_font())
         report_layout.addWidget(self.full_report)
-        self.tabs.addTab(report_page, "完整报告")
+        self.tabs.addTab(report_page, "Full Report")
         self.raw_yaml = QPlainTextEdit()
         self.raw_yaml.setReadOnly(True)
-        self.raw_yaml.setFont(QFont("Consolas", 11))
-        self.tabs.addTab(self.raw_yaml, "原始 YAML")
+        self.raw_yaml.setFont(monospace_font())
+        self.tabs.addTab(self.raw_yaml, "Raw YAML")
+        self.tabs.setCurrentWidget(self.parameters_view)
         right.addWidget(self.tabs, 1)
-        right.addWidget(label("仅解析 provenance；不校验数据区的完整性，也不执行分析命令。"))
+        right.addWidget(
+            label(
+                "Reads provenance only. Data payload integrity is not checked; "
+                "analysis commands are not executed."
+            )
+        )
         splitter.addWidget(sidebar)
         splitter.addWidget(results)
-        splitter.setSizes([310, 840])
+        splitter.setSizes([325, 825])
         splitter.setStretchFactor(1, 1)
         outer.addWidget(splitter, 1)
         self.progress_bar = QProgressBar()
         self.progress_bar.setTextVisible(False)
         self.progress_bar.hide()
         outer.addWidget(self.progress_bar)
-        self.status = label("就绪 · 可拖拽多个 QIIME 2 文件", "status")
+        self.status = label("Ready · Drop QIIME 2 files to begin", "status")
         outer.addWidget(self.status)
 
     def _build_menu(self) -> None:
         """Expose standard keyboard shortcuts and application information."""
-        menu = self.menuBar().addMenu("文件")
-        open_action = QAction("添加文件…", self)
+        menu = self.menuBar().addMenu("File")
+        open_action = QAction("Add Files…", self)
         open_action.setShortcut(QKeySequence.StandardKey.Open)
         open_action.triggered.connect(self.choose_files)
         menu.addAction(open_action)
-        export_action = QAction("导出报告…", self)
+        export_action = QAction("Export Report…", self)
         export_action.setShortcut(QKeySequence.StandardKey.Save)
         export_action.triggered.connect(self.export_report)
         menu.addAction(export_action)
-        help_menu = self.menuBar().addMenu("帮助")
-        about = QAction("关于 Provenance Studio", self)
+        help_menu = self.menuBar().addMenu("Help")
+        about = QAction("About Provenance Studio", self)
         about.triggered.connect(self.show_about)
         help_menu.addAction(about)
 
@@ -305,9 +313,9 @@ class MainWindow(QMainWindow):
             self,
             "Provenance Studio",
             f"QIIME 2 Provenance Studio {__version__}\n\n"
-            "使用 PySide6 / Qt 和 PyYAML。\n无需安装 QIIME 2 或 conda。\n"
-            "仅读取本地 provenance，不上传文件。\n"
-            "原始 YAML 可核对完整证据；数据区未做完整性校验。",
+            "Built with PySide6 / Qt and PyYAML.\nQIIME 2 and conda are not required.\n"
+            "Reads local provenance. Files are not uploaded.\n"
+            "Use Raw YAML to inspect the complete evidence. Data payload integrity is not checked.",
         )
 
     def _update_buttons(self) -> None:
@@ -320,22 +328,28 @@ class MainWindow(QMainWindow):
         self.export_button.setEnabled(self.current_report is not None)
         self.copy_button.setEnabled(self.current_report is not None)
         self.cancel_button.setVisible(busy)
-        self.file_count.setText(f"{len(self.paths)} 个文件 · {len(self.reports)} 个已解析")
+        self.file_count.setText(f"{len(self.paths)} files · {len(self.reports)} parsed")
 
     @Slot()
     def choose_files(self) -> None:
-        """Load local QZA/QZV paths from the native file dialog."""
+        """Load local QZA/QZV paths from an application-owned English file dialog."""
         if self.worker is not None:
             return
         paths, _ = QFileDialog.getOpenFileNames(
-            self, "添加 QIIME 2 文件", "", "QIIME 2 (*.qza *.qzv)"
+            self,
+            "Add QIIME 2 Files",
+            "",
+            "QIIME 2 (*.qza *.qzv)",
+            options=QFileDialog.Option.DontUseNativeDialog,
         )
         self.add_paths([Path(path) for path in paths])
 
     def add_paths(self, paths: Sequence[Path]) -> None:
         """Normalize paths, reject unavailable files and avoid duplicate queue entries."""
         if self.worker is not None:
-            self.status.setText("正在解析；请完成后再添加文件。")
+            self.status.setText(
+                "Parsing is in progress. Add more files after the current batch finishes."
+            )
             return
         added = 0
         rejected: list[str] = []
@@ -343,21 +357,21 @@ class MainWindow(QMainWindow):
             try:
                 resolved = path.expanduser().resolve(strict=True)
                 if not resolved.is_file() or resolved.suffix.lower() not in {".qza", ".qzv"}:
-                    raise ValueError("需要 .qza / .qzv 文件")
+                    raise ValueError("A .qza or .qzv file is required")
             except (OSError, ValueError) as error:
                 rejected.append(f"{path.name}: {error}")
                 continue
             if resolved in self.paths:
                 continue
             self.paths.append(resolved)
-            item = QListWidgetItem(f"{resolved.name}\n待解析")
+            item = QListWidgetItem(f"{resolved.name}\nReady to parse")
             item.setToolTip(str(resolved))
             self.file_list.addItem(item)
             added += 1
         if self.file_list.currentRow() < 0 and self.paths:
             self.file_list.setCurrentRow(0)
         self.status.setText(
-            f"添加 {added} 个文件" + (" · 跳过：" + "; ".join(rejected) if rejected else "")
+            f"Added {added} files" + (" · Skipped: " + "; ".join(rejected) if rejected else "")
         )
         self._update_buttons()
 
@@ -385,7 +399,7 @@ class MainWindow(QMainWindow):
         for index, path in enumerate(self.paths):
             item = self.file_list.item(index)
             if item is not None:
-                item.setText(f"{path.name}\n等待解析")
+                item.setText(f"{path.name}\nWaiting to parse")
         self.select_file(self.file_list.currentRow())
         self.worker = ParseWorker(self.paths, self)
         self.worker.succeeded.connect(self.accept_report)
@@ -409,8 +423,8 @@ class MainWindow(QMainWindow):
         item = self.file_list.item(index)
         if item is not None:
             item.setText(
-                f"{value.path.name}\n已解析 · {len(value.executions)} 个步骤"
-                + (" · 有缺失" if value.missing_inputs else "")
+                f"{value.path.name}\nParsed · {len(value.executions)} steps"
+                + (" · Missing evidence" if value.missing_inputs else "")
             )
         if self.file_list.currentRow() == index:
             self.select_file(index)
@@ -423,7 +437,7 @@ class MainWindow(QMainWindow):
         index = self.paths.index(Path(path))
         item = self.file_list.item(index)
         if item is not None:
-            item.setText(f"{Path(path).name}\n解析失败 · 点击查看原因")
+            item.setText(f"{Path(path).name}\nParse failed · Select to inspect the error")
             item.setToolTip(message)
         if self.file_list.currentRow() == index:
             self.select_file(index)
@@ -432,7 +446,7 @@ class MainWindow(QMainWindow):
     def update_progress(self, done: int, total: int, name: str) -> None:
         """Display bounded batch progress without estimating a file's parse time."""
         self.progress_bar.setValue(done)
-        self.status.setText(f"解析 {done}/{total} · {name}")
+        self.status.setText(f"Parsing {done}/{total} · {name}")
 
     @Slot()
     def cancel_parsing(self) -> None:
@@ -440,7 +454,7 @@ class MainWindow(QMainWindow):
         if self.worker is not None:
             self.worker.requestInterruption()
             self.cancel_button.setEnabled(False)
-            self.status.setText("正在完成当前文件，随后停止。")
+            self.status.setText("Finishing the current file, then stopping.")
 
     @Slot()
     def parsing_finished(self) -> None:
@@ -451,7 +465,7 @@ class MainWindow(QMainWindow):
         self.progress_bar.hide()
         pending = len(self.paths) - len(self.reports) - len(self.errors)
         self.status.setText(
-            f"完成 · 成功 {len(self.reports)} · 失败 {len(self.errors)} · 未处理 {pending}"
+            f"Complete · Parsed {len(self.reports)} · Failed {len(self.errors)} · Pending {pending}"
         )
         self._update_buttons()
         if self.close_pending:
@@ -465,17 +479,14 @@ class MainWindow(QMainWindow):
         self.action_list.clear()
         self.raw_yaml.clear()
         self.full_report.clear()
-        self.parameters_view.setPlainText(
-            "等待解析结果。" if self.verbose.isChecked()
-            else "勾选左侧 Verbose，查看每一步的 QIIME 参数。"
-        )
+        self.parameters_view.setPlainText("Parse a file to inspect every recorded QIIME parameter.")
         self.action_count.setText("—")
         self.artifact_count.setText("—")
-        self.evidence_status.setText("等待解析")
+        self.evidence_status.setText("Waiting to parse")
         if not 0 <= index < len(self.paths):
-            self.result_title.setText("从一个文件，读懂整个分析过程")
-            self.result_type.setText("添加 QIIME 2 文件后，点击左侧解析按钮。")
-            self.action_detail.setPlainText("等待文件。")
+            self.result_title.setText("Trace the analysis behind each file")
+            self.result_type.setText("Add QIIME 2 files, then select Parse All Files.")
+            self.action_detail.setPlainText("Waiting for files.")
             self._update_buttons()
             return
         path = self.paths[index]
@@ -484,9 +495,11 @@ class MainWindow(QMainWindow):
         report = self.reports.get(str(path))
         if report is None:
             error = self.errors.get(str(path))
-            self.result_type.setText("解析失败" if error else "文件已加载，等待解析。")
-            self.action_detail.setPlainText(error or "点击「解析全部文件」查看证据链。")
-            self.evidence_status.setText("无法读取证据" if error else "等待解析")
+            self.result_type.setText("Parse failed" if error else "File loaded and ready to parse.")
+            self.action_detail.setPlainText(
+                error or "Select Parse All Files to inspect the evidence chain."
+            )
+            self.evidence_status.setText("Evidence unavailable" if error else "Waiting to parse")
         else:
             self.current_report = report
             self.current_actions = report.executions
@@ -494,15 +507,15 @@ class MainWindow(QMainWindow):
             self.action_count.setText(str(len(report.executions)))
             self.artifact_count.setText(str(len(report.records)))
             self.evidence_status.setText(
-                f"缺少 {len(report.missing_inputs)} 个上游记录"
+                f"Missing {len(report.missing_inputs)} upstream records"
                 if report.missing_inputs
-                else "上游引用齐全"
+                else "All upstream references present"
             )
             for position, record in enumerate(self.current_actions, 1):
                 item = QListWidgetItem(
                     f"{position:02d}   {record.command}"
-                    + ("   ·   当前文件" if record.is_main else "")
-                    + f"\n        {len(record.inputs)} 个输入  ·  {record.uuid[:8]}"
+                    + ("   ·   Current file" if record.is_main else "")
+                    + f"\n        {len(record.inputs)} inputs  ·  {record.uuid[:8]}"
                 )
                 item.setToolTip(record.uuid)
                 self.action_list.addItem(item)
@@ -514,27 +527,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def refresh_display(self) -> None:
-        """Render cached evidence; changing verbosity never reopens the source archive."""
-        self.parameters_view.setPlainText(
-            "等待解析结果。" if self.verbose.isChecked()
-            else "勾选左侧 Verbose，查看每一步的 QIIME 参数。"
-        )
+        """Render cached evidence with recorded parameters in every report view."""
+        self.parameters_view.setPlainText("Parse a file to inspect every recorded QIIME parameter.")
         if self.current_report is not None:
-            if self.verbose.isChecked():
-                self.parameters_view.setHtml(render_parameters(self.current_report))
-            self.full_report.setPlainText(
-                render_text(self.current_report, self.verbose.isChecked())
-            )
+            self.parameters_view.setHtml(render_parameters(self.current_report))
+            self.full_report.setPlainText(render_text(self.current_report, True))
             self.select_action(self.action_list.currentRow())
-
-    @Slot(bool)
-    def set_verbose(self, enabled: bool) -> None:
-        """Reveal all execution parameters immediately and synchronize report views."""
-        self.refresh_display()
-        if enabled:
-            self.tabs.setCurrentWidget(self.parameters_view)
-        elif self.tabs.currentWidget() is self.parameters_view:
-            self.tabs.setCurrentIndex(0)
 
     @Slot(int)
     def select_action(self, index: int) -> None:
@@ -542,9 +540,7 @@ class MainWindow(QMainWindow):
         if self.current_report is None or not 0 <= index < len(self.current_actions):
             return
         record = self.current_actions[index]
-        self.action_detail.setHtml(
-            render_action(record, self.current_report, self.verbose.isChecked())
-        )
+        self.action_detail.setHtml(render_action(record, self.current_report, True))
         self.raw_yaml.setPlainText(f"# {record.member}\n\n{record.raw_yaml}")
 
     @Slot(QUrl)
@@ -569,16 +565,14 @@ class MainWindow(QMainWindow):
             cursor.movePosition(cursor.MoveOperation.Start)
             self.full_report.setTextCursor(cursor)
             if not self.full_report.find(term):
-                self.status.setText(f"未找到：{term}")
+                self.status.setText(f"No match found: {term}")
 
     @Slot()
     def copy_report(self) -> None:
-        """Copy the current report using the active parameter-display setting."""
+        """Copy the complete current report, including every recorded parameter."""
         if self.current_report is not None:
-            QApplication.clipboard().setText(
-                render_text(self.current_report, self.verbose.isChecked())
-            )
-            self.status.setText("当前报告已复制到剪贴板。")
+            QApplication.clipboard().setText(render_text(self.current_report, True))
+            self.status.setText("The current report has been copied to the clipboard.")
 
     @Slot()
     def export_report(self) -> None:
@@ -588,9 +582,10 @@ class MainWindow(QMainWindow):
             return
         path, selected_filter = QFileDialog.getSaveFileName(
             self,
-            "导出当前报告",
+            "Export Current Report",
             report.path.stem + "-provenance.txt",
-            "文本报告 (*.txt);;JSON 数据 (*.json);;HTML 报告 (*.html)",
+            "Text report (*.txt);;JSON data (*.json);;HTML report (*.html)",
+            options=QFileDialog.Option.DontUseNativeDialog,
         )
         if not path:
             return
@@ -610,22 +605,23 @@ class MainWindow(QMainWindow):
                 ".json",
                 ".html",
             }:
-                raise ValueError("请使用 .txt、.json 或 .html 文件名；不可覆盖输入文件。")
-            verbose = self.verbose.isChecked()
+                raise ValueError(
+                    "Use a .txt, .json or .html filename. Input archives cannot be overwritten."
+                )
             content = (
-                report.to_json(verbose)
+                report.to_json(True)
                 if target.suffix.lower() == ".json"
                 else (
-                    render_html(report, verbose)
+                    render_html(report, True)
                     if target.suffix.lower() == ".html"
-                    else render_text(report, verbose)
+                    else render_text(report, True)
                 )
             )
             target.write_text(content, encoding="utf-8")
         except (OSError, ValueError) as error:
-            QMessageBox.warning(self, "导出失败", str(error))
+            QMessageBox.warning(self, "Export Failed", str(error))
             return
-        self.status.setText(f"已导出：{target}")
+        self.status.setText(f"Exported: {target}")
 
     @Slot()
     def remove_selected(self) -> None:
@@ -695,16 +691,7 @@ def main() -> int:
         if icon.is_file():
             app.setWindowIcon(QIcon(str(icon)))
             break
-    app.setStyle("Fusion")
-    palette = QPalette()
-    palette.setColor(QPalette.ColorRole.Window, QColor("#f3f5f6"))
-    palette.setColor(QPalette.ColorRole.Base, QColor("#ffffff"))
-    palette.setColor(QPalette.ColorRole.Text, QColor("#233c48"))
-    palette.setColor(QPalette.ColorRole.WindowText, QColor("#233c48"))
-    palette.setColor(QPalette.ColorRole.Highlight, QColor("#087d79"))
-    palette.setColor(QPalette.ColorRole.HighlightedText, QColor("#ffffff"))
-    app.setPalette(palette)
-    app.setStyleSheet(STYLESHEET)
+    configure_application(app)
     window = MainWindow()
     app.window = window
     window.show()

@@ -14,7 +14,7 @@ def parameter_table(record: ActionRecord) -> str:
     no defaults. Tables use 11 pt text, bold headers and no fill colors.
     """
     if not record.parameters:
-        return "<p>此步骤的证据未记录 parameters。</p>"
+        return "<p>No parameters recorded in this evidence record.</p>"
     rows = "".join(
         f"<tr><td>{escape(key)}</td><td>"
         f"{escape(json.dumps(value, ensure_ascii=False))}</td></tr>"
@@ -22,7 +22,7 @@ def parameter_table(record: ActionRecord) -> str:
     )
     return (
         '<table style="font-size:11pt" cellspacing="8">'
-        '<tr><th align="left">参数名</th><th align="left">值</th></tr>'
+        '<tr><th align="left">Parameter</th><th align="left">Value</th></tr>'
         + rows
         + "</table>"
     )
@@ -35,9 +35,10 @@ def render_parameters(report: Report) -> str:
     recorded names verbatim rather than guessing CLI flags or missing defaults.
     """
     parts = [
-        "<h3>每一步的 QIIME 参数</h3>",
-        "<p>按证据链顺序排列；同一次执行的多个输出合并显示。"
-        "参数名与值来自 action.yaml，未记录的默认值不作推断。</p>",
+        "<h3>QIIME parameters by evidence step</h3>",
+        "<p>Steps follow dependency order; multiple outputs from one execution "
+        "are grouped together. Parameter names and values come from action.yaml. "
+        "Unrecorded defaults are not inferred.</p>",
     ]
     for index, record in enumerate(report.executions, 1):
         parts.extend(
@@ -45,7 +46,7 @@ def render_parameters(report: Report) -> str:
                 f"<h3>{index:02d} · {escape(record.command)}</h3>",
                 parameter_table(record),
                 f"<p><b>Execution UUID</b><br>{escape(record.uuid)}<br>"
-                f"<b>ZIP 内证据位置</b><br>{escape(record.member)}</p>",
+                f"<b>Evidence ZIP member</b><br>{escape(record.member)}</p>",
             ]
         )
     return "".join(parts)
@@ -79,17 +80,17 @@ def render_text(report: Report, verbose: bool = False) -> str:
                 f"  Artifact UUID  : {record.artifact_uuid}",
                 f"  Inputs         : {', '.join(record.inputs) or 'none'}",
                 f"  QIIME version  : {record.framework_version}",
-                f"  Source member  : {record.member}",
+                f"  Evidence ZIP member : {record.member}",
             ]
         )
         if verbose:
-            lines.append("  Parameters     :")
+            lines.append("  QIIME parameters :")
             lines.extend(
                 f"    {key}: {json.dumps(value, ensure_ascii=False)}"
                 for key, value in record.parameters.items()
             )
             if not record.parameters:
-                lines.append("    not recorded in this evidence record")
+                lines.append("    No parameters recorded in this evidence record.")
     lines.extend(["", "Scope: provenance metadata only; data payload checksums were not verified."])
     return "\n".join(lines)
 
@@ -102,50 +103,53 @@ def render_action(record: ActionRecord, report: Report, verbose: bool) -> str:
         f"<p><b>Execution UUID</b><br>{escape(record.uuid)}</p>",
     ]
     parts.append(
-        "<p><b>输出 Artifact</b><br>"
+        "<p><b>Output artifacts</b><br>"
         + "<br>".join(
-            escape(r.artifact_uuid) + (" · 当前文件" if r.is_main else "") for r in outputs
+            escape(r.artifact_uuid) + (" · Current file" if r.is_main else "") for r in outputs
         )
         + "</p>"
     )
     known = {r.artifact_uuid for r in report.records}
     inputs = tuple(dict.fromkeys(uid for r in outputs for uid in r.inputs))
     parts.append(
-        "<p><b>上游输入</b><br>"
+        "<p><b>Upstream inputs</b><br>"
         + (
             "<br>".join(
-                f'<a href="artifact:{uid}">{uid}</a>' if uid in known else f"{uid} · 缺少记录"
+                f'<a href="artifact:{uid}">{uid}</a>' if uid in known else f"{uid} · Missing record"
                 for uid in inputs
             )
-            or "无（导入起点）"
+            or "None (import)"
         )
         + "</p>"
     )
     parts.append(f"<p><b>QIIME 2</b> · {escape(record.framework_version)}</p>")
     if record.runtime:
         parts.append(
-            "<p><b>执行时间</b><br>"
+            "<p><b>Execution time</b><br>"
             + "<br>".join(
                 f"{escape(key)}: {escape(str(value))}" for key, value in record.runtime.items()
             )
             + "</p>"
         )
     if verbose:
-        parts.append("<h3>QIIME 参数</h3>" + parameter_table(record))
+        parts.append("<h3>QIIME parameters</h3>" + parameter_table(record))
     else:
-        parts.append("<p>勾选左侧「Verbose：显示 QIIME 参数」查看此步骤的参数值。</p>")
-    parts.append(f"<p><b>ZIP 内证据位置</b><br>{escape(record.member)}</p>")
+        parts.append("<p>Parameters omitted from this view.</p>")
+    parts.append(f"<p><b>Evidence ZIP member</b><br>{escape(record.member)}</p>")
     return "".join(parts)
 
 
 def render_html(report: Report, verbose: bool) -> str:
     """Create an offline, script-free HTML report with escaped source content."""
     return (
-        '<!doctype html><html lang="zh-CN"><meta charset="utf-8">'
+        '<!doctype html><html lang="en"><meta charset="utf-8">'
         "<title>QIIME 2 Provenance Report</title><style>"
-        "body{max-width:1100px;margin:48px auto;padding:0 24px;font:15px system-ui;"
-        "line-height:1.7;color:#182831}pre{white-space:pre-wrap;overflow-wrap:anywhere;"
-        "font:13px ui-monospace,monospace}</style><body>"
+        "body{max-width:1100px;margin:48px auto;padding:0 24px;"
+        "font:16px system-ui,-apple-system,\"Segoe UI\",sans-serif;"
+        "line-height:1.7;color:#242424;background:#fff}"
+        "pre{white-space:pre-wrap;overflow-wrap:anywhere;"
+        "font:11pt ui-monospace,\"SF Mono\",Consolas,Menlo,monospace;"
+        "line-height:1.65}</style><body>"
         "<h1>QIIME 2 Provenance Report</h1><pre>"
         + escape(render_text(report, verbose))
         + "</pre></body></html>"

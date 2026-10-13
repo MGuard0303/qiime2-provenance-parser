@@ -22,10 +22,10 @@ def main() -> None:
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
             painter.scale(size * scale / 1024, size * scale / 1024)
             painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QColor("#0b7775"))
+            painter.setBrush(QColor("#303030"))
             painter.drawRoundedRect(QRectF(62, 62, 900, 900), 210, 210)
             painter.setPen(
-                QPen(QColor("#b9dfdc"), 42, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap)
+                QPen(QColor("#c8c8c8"), 42, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap)
             )
             painter.drawLine(QPointF(296, 320), QPointF(690, 510))
             painter.drawLine(QPointF(296, 700), QPointF(690, 510))
@@ -33,7 +33,7 @@ def main() -> None:
             painter.setBrush(QColor("#ffffff"))
             for x, y, radius in [(296, 320, 87), (296, 700, 87), (690, 510, 119)]:
                 painter.drawEllipse(QPointF(x, y), radius, radius)
-            painter.setBrush(QColor("#0b7775"))
+            painter.setBrush(QColor("#303030"))
             painter.drawEllipse(QPointF(690, 510), 49, 49)
             painter.end()
             suffix = "@2x" if scale == 2 else ""

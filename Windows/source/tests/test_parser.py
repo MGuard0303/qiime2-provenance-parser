@@ -1,19 +1,19 @@
 """Exercise evidence correctness and malformed/untrusted input boundaries."""
 
+import json
 from dataclasses import replace
 from pathlib import Path
 from uuid import UUID
 from zipfile import ZipFile
 
-import json
 import pytest
 import yaml
-
 from conftest import PARENT, ROOT, make_archive
+
 from qiime2_provenance.parser import (
     MAX_MEMBER_BYTES,
-    QIIME2Loader,
     ProvenanceError,
+    QIIME2Loader,
     get_action_files,
     json_value,
     order_records,

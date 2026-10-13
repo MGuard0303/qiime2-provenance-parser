@@ -14,14 +14,14 @@ from uuid import UUID
 from zipfile import ZipFile
 
 from PySide6.QtCore import QCoreApplication, QMimeData, QPoint, QPointF, Qt, QUrl, qVersion
-from PySide6.QtGui import QDragEnterEvent, QDropEvent
-from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPalette
+from PySide6.QtWidgets import QApplication, QCheckBox
 
 from . import __version__
 from .app import MainWindow
 from .parser import parse_archive
 from .render import render_html, render_text
-from .style import STYLESHEET
+from .style import configure_application
 
 
 def make_fixture(path: Path) -> None:
@@ -68,10 +68,11 @@ def main(arguments: list[str]) -> int:
         "qt_version": qVersion(),
     }
     application = QApplication([sys.argv[0]])
-    application.setStyle("Fusion")
-    application.setStyleSheet(STYLESHEET)
+    configure_application(application)
     window = MainWindow()
     result["qt_platform_plugin"] = application.platformName()
+    result["font_family"] = application.font().family()
+    result["font_point_size"] = application.font().pointSize()
     try:
         assert sys.platform == "win32", "This check must run inside the Windows distribution."
         assert sys.flags.isolated == 1
@@ -114,28 +115,46 @@ def main(arguments: list[str]) -> int:
             assert window.worker is None, "Worker timed out."
             assert len(window.reports) == 1 and len(window.errors) == 1
             assert window.action_list.count() == 2
-            window.verbose.setChecked(True)
+            assert not hasattr(window, "verbose") and not hasattr(window, "set_verbose")
+            assert not window.findChildren(QCheckBox)
             assert "trunc_len_f: 230" in window.full_report.toPlainText()
+            assert "230" in window.action_detail.toPlainText()
             assert window.tabs.currentWidget() is window.parameters_view
+            assert application.font().pointSize() == 11
+            assert application.font().family()
+            for role in (
+                QPalette.ColorRole.Window,
+                QPalette.ColorRole.Base,
+                QPalette.ColorRole.Text,
+                QPalette.ColorRole.Highlight,
+                QPalette.ColorRole.HighlightedText,
+            ):
+                color = application.palette().color(role)
+                assert color.red() == color.green() == color.blue()
+            assert [window.tabs.tabText(index) for index in range(window.tabs.count())] == [
+                "Evidence Chain", "QIIME Parameters", "Full Report", "Raw YAML",
+            ]
             parameters = window.parameters_view.toPlainText()
             assert "01 · qiime tools import" in parameters
             assert "02 · qiime dada2 denoise-paired" in parameters
             assert "trunc_len_f" in parameters and "230" in parameters
-            window.verbose.setChecked(False)
-            assert "trunc_len_f" not in window.parameters_view.toPlainText()
-            assert "trunc_len_f" not in window.full_report.toPlainText()
-            window.verbose.setChecked(True)
+            assert "中文测试" in parameters
+            window.copy_report()
+            assert "trunc_len_f: 230" in application.clipboard().text()
             report = window.current_report
             assert report is not None
             (temp / "结果.json").write_text(report.to_json(True), encoding="utf-8")
             (temp / "结果.html").write_text(render_html(report, True), encoding="utf-8")
             (temp / "结果.txt").write_text(render_text(report, True), encoding="utf-8")
-            assert json.loads((temp / "结果.json").read_text(encoding="utf-8"))["records"]
+            exported = json.loads((temp / "结果.json").read_text(encoding="utf-8"))
+            assert exported["records"][-1]["parameters"]["trunc_len_f"] == 230
+            assert exported["records"][-1]["parameters"]["name"] == "中文测试"
             window.search.setText("trunc_len_f")
             window.find_text()
             assert window.full_report.textCursor().selectedText() == "trunc_len_f"
             window.file_list.setCurrentRow(1)
             assert window.current_report is None and not window.export_button.isEnabled()
+            assert "trunc_len_f" not in window.parameters_view.toPlainText()
             window.remove_selected()
             assert window.current_report is not None
             window.clear_files()
@@ -145,8 +164,11 @@ def main(arguments: list[str]) -> int:
                 "duplicate suppression",
                 "background parsing",
                 "error isolation",
-                "verbose parameters for every execution",
-                "parameter toggle on and off",
+                "always-on parameters for every execution",
+                "parameter copy and details",
+                "English controls",
+                "readable default font",
+                "neutral grayscale palette",
                 "UTF-8 exports",
                 "search",
                 "file switching",
@@ -178,7 +200,7 @@ def main(arguments: list[str]) -> int:
                 window.add_paths([example])
                 window.accept_report(parse_archive(example))
         if args.screenshot is not None:
-            window.status.setText("验收环境 · " + args.environment)
+            window.status.setText("Validation environment · " + args.environment)
             application.processEvents()
             window.action_list.scrollToTop()
             assert window.grab().save(str(args.screenshot))

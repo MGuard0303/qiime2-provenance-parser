@@ -110,12 +110,12 @@ def main() -> None:
     resources.write_text(
         f'1 ICON "{icon.as_posix()}"\n'
         f'1 24 "{(source / "native/app.manifest").as_posix()}"\n'
-        "1 VERSIONINFO\nFILEVERSION 1,1,0,0\nPRODUCTVERSION 1,1,0,0\n"
+        "1 VERSIONINFO\nFILEVERSION 1,2,0,0\nPRODUCTVERSION 1,2,0,0\n"
         'FILEOS 0x40004\nFILETYPE 1\nBEGIN\nBLOCK "StringFileInfo"\nBEGIN\n'
         'BLOCK "040904B0"\nBEGIN\n'
         'VALUE "FileDescription", "QIIME 2 Provenance Studio\\0"\n'
         'VALUE "ProductName", "QIIME 2 Provenance Studio\\0"\n'
-        'VALUE "FileVersion", "1.1.0\\0"\nEND\nEND\n'
+        'VALUE "FileVersion", "1.2.0\\0"\nEND\nEND\n'
         'BLOCK "VarFileInfo"\nBEGIN\nVALUE "Translation", 0x0409, 1200\nEND\nEND\n',
         encoding="utf-8",
     )
@@ -143,7 +143,7 @@ def main() -> None:
     )
     manifest = {
         "platform": "Windows-x64",
-        "app_version": "1.1.0",
+        "app_version": "1.2.0",
         "python": (downloads / "python-version.txt").read_text().strip(),
         "method": "Official embedded CPython + Windows wheels + native Unicode GUI launcher",
         "inputs": [

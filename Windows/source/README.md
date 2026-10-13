@@ -1,4 +1,4 @@
-# QIIME 2 Provenance Studio — Windows x64
+# QIIME 2 Provenance Studio v1.2.0 — Windows x64
 
 ## English
 
@@ -11,9 +11,9 @@ not supported.
 
 ### Run the portable app
 
-1. Extract the complete `QIIME2-Provenance-Studio-Windows-x64-v1.1.0.zip` into a local folder.
+1. Extract the complete `QIIME2-Provenance-Studio-Windows-x64-v1.2.0.zip` into a local folder.
 2. Double-click **`Provenance Studio.exe`** in the extracted folder.
-3. Drag in `.qza` / `.qzv` files and click “解析全部文件” (Parse all files).
+3. Drag in `.qza` / `.qzv` files and click **Parse All Files**.
 
 Python, conda, QIIME 2, Qt, and the Visual C++ runtime do not need to be installed;
 the required components are bundled. No administrator privileges or internet
@@ -26,17 +26,18 @@ The current EXE has no commercial code signature, so Windows may display
 system prompts according to your organization's software policy. Disabling
 system security features is unnecessary.
 
-### View parameters with Verbose
+### Always-on parameters and English interface
 
-Select “Verbose：显示 QIIME 参数” (Verbose: show QIIME parameters) on the left.
-The “QIIME 参数” (QIIME parameters) tab opens automatically on the right.
-For each step, it lists the parameter names and values recorded in `action.yaml`,
-the execution UUID, and the evidence location in provenance-chain order.
-Multiple outputs from the same execution are displayed once. Step details in
-the provenance chain, the complete report, copied results, and exports also
-include parameters. Raw YAML remains complete at all times. Parameter values
-retain their original types; unrecorded defaults are not added. Clearing the
-checkbox hides parameters from ordinary reports and exports.
+The interface is fully English. **QIIME Parameters** is the default tab when the
+window opens and after selecting a parsed file. Detailed mode is always enabled;
+there is no Verbose button or checkbox. Each step lists the parameter names and
+JSON values recorded in `action.yaml`, the execution UUID, and the evidence ZIP
+member in dependency order. Multiple outputs from one execution appear once.
+Steps without recorded parameters are explicitly identified. **Evidence Chain**
+step details, **Full Report**, copied reports, and TXT / JSON / HTML exports also
+include parameters. Raw YAML remains complete. Original parameter names and
+value types are preserved; unrecorded defaults are not inferred. Source values,
+filenames, and raw YAML retain their original language.
 
 ### Interface and features
 
@@ -48,8 +49,8 @@ and TXT / JSON / HTML export.
 
 - `Ctrl+O` adds files; `Ctrl+S` exports the current report.
 - Parsing errors appear under the affected file; processing continues for other files.
-- “停止” (Stop) takes effect after the current archive finishes. Closing the window waits for the background thread to exit safely.
-- “Verbose：显示 QIIME 参数” affects step details, the complete report, copying, and exports; raw YAML always remains complete.
+- **Stop After Current File** takes effect after the current archive finishes. Closing the window waits for the background thread to exit safely.
+- **QIIME Parameters**, step details, the complete report, copying, and exports always include recorded parameters; raw YAML always remains complete.
 - Exported JSON includes source paths. Review path information as needed before sharing a report.
 
 ### Runtime and technology
@@ -62,8 +63,12 @@ and TXT / JSON / HTML export.
 The launcher starts Python in isolated mode. It does not depend on a system
 Python installation, user site-packages, `PYTHONPATH`, or conda. Qt plugin paths
 point to the application's own files. The app uses the Windows platform plugin
-and Segoe UI / Consolas fonts. Required Qt Widgets and Visual C++ DLLs are
-included. The original light, simple layout and high-DPI support are retained.
+and readable 11 pt Segoe UI / Consolas fonts, with native system fallbacks when
+unavailable. Required Qt Widgets and Visual C++ DLLs are included. White panels
+and dark-gray controls use a grayscale palette, including selections and
+keyboard focus. Parameter tables use bold headings and no custom fill colors.
+High-DPI support is retained. Offline HTML has English language metadata and
+neutral readable typography.
 
 Packaging uses the official embedded Python distribution, official Windows
 wheels, and a native launcher compiled with Zig 0.16.0. This approach can assemble
@@ -82,6 +87,10 @@ Running the delivered EXE requires no new environment. For development, create
 an independent environment with `environment.yml`, or install
 `requirements-dev.txt` in a Python 3.13 environment and run
 `pip install --no-deps -e .`.
+
+The source package is `QIIME2-Provenance-Studio-Windows-source-v1.2.0.zip`.
+Git is managed manually by the project owner; updating or building the app does
+not run Git automatically.
 
 For a reproducible build, install official Zig 0.16.0 beforehand and replace
 the placeholder below with its actual path:
@@ -114,9 +123,14 @@ Add `--data-root "D:\data\ds-20200228"` to scan real QZA/QZV files, or add
 `--screenshot "C:\Temp\preview.png"` to save the acceptance-test interface.
 The output path's parent directory must already exist.
 
-### Completed validation and limits
+### Historical v1.1.0 validation and limits
 
-At the original delivery, the Windows EXE passed runtime validation under Wine 11.0 on macOS Apple Silicon,
+The following figures describe v1.1.0, and do not establish acceptance of v1.2.0.
+Current releases store independent validation records in the platform delivery
+directory. Historical v1.1.0 source tests covered 23 cases per platform, and its
+GUI checks covered 115 evidence steps and 894 recorded parameters.
+
+For v1.1.0, the Windows EXE passed runtime validation under Wine 11.0 on macOS Apple Silicon,
 loading Windows Python, Windows Qt DLLs, and the `windows` platform plugin.
 Acceptance checks covered Chinese characters and spaces in paths, drag-and-drop
 events, background parsing, error isolation, parameter toggling, UTF-8 exports,
@@ -145,15 +159,15 @@ remain independent. Component information and license texts are in
 
 ## 中文
 
-Windows 独立便携版。界面、源码、运行库与构建文件全部位于 Windows 专用目录，
+v1.2.0 Windows 独立便携版。界面、源码、运行库与构建文件全部位于 Windows 专用目录，
 不依赖 macOS 应用。目标为 **Windows 10 1809 及以上 / Windows 11，Intel 或 AMD 64 位**。
 Windows ARM64 的 x64 模拟运行未验证，32 位 Windows 不支持。
 
 ### 开箱即用
 
-1. 将 `QIIME2-Provenance-Studio-Windows-x64-v1.1.0.zip` 完整解压到本地文件夹。
+1. 将 `QIIME2-Provenance-Studio-Windows-x64-v1.2.0.zip` 完整解压到本地文件夹。
 2. 双击解压目录中的 **`Provenance Studio.exe`**。
-3. 拖入 `.qza` / `.qzv`，点击「解析全部文件」。
+3. 拖入 `.qza` / `.qzv`，点击 **Parse All Files**。
 
 无需安装 Python、conda、QIIME 2、Qt 或 Visual C++ 运行库；程序内置所需组件。
 无需管理员权限，也无需联网。请保留 `runtime`、`app`、`licenses` 等相邻目录，
@@ -162,13 +176,15 @@ Windows ARM64 的 x64 模拟运行未验证，32 位 Windows 不支持。
 当前 EXE 未做商业代码签名，Windows 可能显示“未知发布者”。应先核对本交付的
 SHA-256，按所在单位的软件使用规则处理系统提示，无需关闭系统安全功能。
 
-### Verbose 参数查看
+### 默认完整参数与英文界面
 
-勾选左侧「Verbose：显示 QIIME 参数」，右侧自动打开「QIIME 参数」页。
-每一步按证据链顺序列出 action.yaml 中的参数名、值、执行 UUID 和证据位置；
-同一次执行的多个输出只展示一次。证据链中的步骤详情、完整报告、复制和导出
-也同步显示参数。原始 YAML 始终完整。参数值保留原类型，不补写未记录的默认值。
-取消勾选后，普通报告及导出隐藏参数。
+界面全部采用英文。窗口打开及切换到已解析文件时默认显示 **QIIME Parameters** 页。
+详细模式始终启用，已移除 Verbose 按钮及复选框。每一步按依赖顺序显示
+`action.yaml` 中的参数名与 JSON 值、执行 UUID 和 ZIP 内证据位置；同一次执行的
+多个输出只展示一次，未记录参数的步骤会明确说明。**Evidence Chain** 步骤详情、
+**Full Report**、复制和 TXT / JSON / HTML 导出始终包含参数。原始 YAML 保持完整。
+参数名与值保留原类型，不推断未记录的默认值；证据值、文件名和原始 YAML
+保留原来的语言。
 
 ### 界面与功能
 
@@ -178,8 +194,8 @@ SHA-256，按所在单位的软件使用规则处理系统提示，无需关闭�
 
 - `Ctrl+O` 添加文件，`Ctrl+S` 导出当前报告。
 - 解析失败会显示在对应文件下，其他文件继续处理。
-- 「停止」在当前归档完成后生效；关闭窗口会等待后台线程安全退出。
-- 「Verbose：显示 QIIME 参数」影响步骤详情、完整报告、复制与导出；原始 YAML 始终完整。
+- **Stop After Current File** 在当前归档完成后生效；关闭窗口会等待后台线程安全退出。
+- **QIIME Parameters**、步骤详情、完整报告、复制与导出始终包含记录参数；原始 YAML 始终完整。
 - 导出 JSON 包含源路径，请在分享报告前按实际需要处理路径信息。
 
 ### 运行时与技术栈
@@ -191,8 +207,10 @@ SHA-256，按所在单位的软件使用规则处理系统提示，无需关闭�
 
 启动器以 Python 隔离模式启动，不依赖电脑已有 Python、用户 site-packages、
 `PYTHONPATH` 或 conda。Qt 插件路径指向应用自身，使用 Windows 平台插件和
-Segoe UI / Consolas 字体。Qt Widgets 所需 DLL 和 Visual C++ DLL 随包提供。
-保留了原版浅色、简洁布局与高 DPI 支持。
+11 pt Segoe UI / Consolas 字体；不可用时使用系统字体。Qt Widgets 所需 DLL 和
+Visual C++ DLL 随包提供。白色面板与深灰控件采用灰阶配色，选中状态和键盘焦点
+均有清晰反馈。参数表列标题加粗，不设置自定义底纹颜色。高 DPI 支持保留，
+离线 HTML 使用英文语言标记及中性易读字体。
 
 打包采用官方嵌入式 Python、官方 Windows wheel 和 Zig 0.16.0 编译的原生启动器。
 该方法可在 macOS 组装真正的 Windows PE 可执行程序；本交付未使用跨平台 PyInstaller。
@@ -206,6 +224,9 @@ Segoe UI / Consolas 字体。Qt Widgets 所需 DLL 和 Visual C++ DLL 随包提�
 
 只运行交付 EXE 时无需创建环境。开发时可以使用 `environment.yml` 创建独立环境，
 或在 Python 3.13 环境安装 `requirements-dev.txt` 后执行 `pip install --no-deps -e .`。
+
+源码包为 `QIIME2-Provenance-Studio-Windows-source-v1.2.0.zip`。
+Git 由项目所有者手动管理，更新或构建应用后不会自动执行 Git 操作。
 
 可复现构建（预先安装官方 Zig 0.16.0，并将下方路径改为其实际位置）：
 
@@ -233,9 +254,13 @@ python -m pytest -q
 可追加 `--data-root "D:\data\ds-20200228"` 扫描真实 QZA/QZV，或追加
 `--screenshot "C:\Temp\preview.png"` 保存验收界面。输出路径的父文件夹需存在。
 
-### 已执行的验证与边界
+### 历史 v1.1.0 验证与边界
 
-原交付验收时，Windows EXE 已通过 Wine 11.0 / macOS Apple Silicon 下的运行验证，实际加载
+以下数字描述 v1.1.0，不作为 v1.2.0 已通过验收的结论。每次发布均在平台目录保存
+独立验证记录。历史 v1.1.0 两平台各有 23 项源码测试，GUI 检查覆盖
+115 个证据步骤及 894 项记录参数。
+
+v1.1.0 Windows EXE 已通过 Wine 11.0 / macOS Apple Silicon 下的运行验证，实际加载
 Windows Python、Windows Qt DLL 与 `windows` 平台插件。验收覆盖中文及空格路径、
 拖拽事件、后台解析、错误隔离、参数切换、UTF-8 导出、搜索与文件移除。
 已成功解析提供的数据目录中全部 **22 个 QZA 和 14 个 QZV**。

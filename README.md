@@ -1,4 +1,4 @@
-# QIIME 2 Provenance Studio
+# QIIME 2 Provenance Studio v1.2.0
 
 ## English
 
@@ -24,7 +24,9 @@ Windows version. Keep the two platform deliveries separate. Changes to shared
 parsing or GUI behavior require checking the corresponding implementation on
 both platforms. The previous Codex outputs and Storage3 directories are
 historical sources; future updates are not synchronized back to those locations.
-The project owner manages Git initialization, remotes, commits and uploads.
+The project owner manages Git manually. Application updates, builds and
+validation never run Git commands automatically, including status, diff, add,
+commit, tag, fetch, pull, push, initialization or remote changes.
 
 ### Complete local project layout
 
@@ -33,16 +35,16 @@ qiime2-provenance-parser/
 ├── README.md                       Project overview and maintenance entry
 ├── AGENTS.md                       Instructions for future coding agents
 ├── .gitignore                      Source and generated-artifact boundaries
-├── macOS/                          Current macOS arm64 v1.1.0 delivery
+├── macOS/                          Current macOS arm64 v1.2.0 delivery
 │   ├── source/                     Source, build scripts, tests and licenses
 │   ├── QIIME 2 Provenance Studio.app
-│   ├── QIIME2-Provenance-Studio-macOS-arm64-v1.1.0.zip
+│   ├── QIIME2-Provenance-Studio-macOS-arm64-v1.2.0.zip
 │   ├── USER_GUIDE.md
 │   └── CHANGELOG.md
-├── Windows/                        Current Windows x64 v1.1.0 delivery
+├── Windows/                        Current Windows x64 v1.2.0 delivery
 │   ├── source/                     Source, native launcher and build scripts
 │   ├── Provenance-Studio-Windows-x64/
-│   ├── QIIME2-Provenance-Studio-Windows-x64-v1.1.0.zip
+│   ├── QIIME2-Provenance-Studio-Windows-x64-v1.2.0.zip
 │   ├── USER_GUIDE.md
 │   ├── CHANGELOG.md
 │   └── archive/v1.0.0/             Original Windows delivery kept locally
@@ -60,34 +62,47 @@ records. The local HTML file-purpose report is linked in the documentation secti
 
 - On Apple Silicon macOS, open `macOS/QIIME 2 Provenance Studio.app`.
 - On Windows, fully extract
-  `Windows/QIIME2-Provenance-Studio-Windows-x64-v1.1.0.zip` and run
+  `Windows/QIIME2-Provenance-Studio-Windows-x64-v1.2.0.zip` and run
   `Provenance Studio.exe`. Keep its adjacent `app`, `runtime` and `licenses`
   directories together.
-- Add or drop QZA/QZV files, then start parsing. Enable the **Verbose** checkbox
-  to view each execution's recorded parameters on the parameter page. Copying
-  and exporting use the same verbosity setting. The application interface is
-  Chinese; the Chinese section below provides the exact UI labels.
+- Add or drop QZA/QZV files, then click **Parse All Files**. **QIIME Parameters**
+  is the default tab and shows each execution's recorded names, JSON values, UUID
+  and evidence ZIP member. Detailed mode is always enabled, with no Verbose
+  toggle. **Evidence Chain**, **Full Report**, copying and all GUI exports include
+  recorded parameters. Raw YAML remains complete.
+- The interface is fully English, with white panels, dark-gray controls and
+  grayscale selections and focus indicators. General text uses the native
+  system font at 11 pt (Segoe UI on Windows); fixed-width evidence uses 11 pt
+  Menlo on macOS or Consolas on Windows, with system fallbacks. Parameter-table
+  headings are bold and have no custom fills or colors. Evidence values and
+  original filenames retain their language.
 - Packaged applications need no installed Python, conda or QIIME 2 environment.
   See the [macOS source guide](macOS/source/README.md) and
   [Windows source guide](Windows/source/README.md).
 
 ### Versions, migration and documentation history
 
+The following describes migration history, before the v1.2.0 update.
 The 2026-10-09 migration copied the original content, including hidden files,
 development caches and internal macOS application symlinks:
 
-1. `macOS/` came from `outputs/macOS-arm64-v1.1.0/` and contains v1.1.0.
+1. `macOS/` came from `outputs/macOS-arm64-v1.1.0/`, containing v1.1.0 at migration.
 2. `Windows/archive/v1.0.0/` came from the explicitly requested
    `outputs/Windows-x64/` and retained the v1.0.0 source, application, ZIPs and
    original delivery evidence.
-3. The current `Windows/` delivery additionally came from
-   `outputs/Windows-x64-v1.1.0/`; v1.1.0 is the maintained Windows version with
-   the dedicated Verbose parameter page.
+3. `Windows/` additionally came from `outputs/Windows-x64-v1.1.0/`. That
+   historical v1.1.0 release introduced the optional Verbose parameter page.
+
+Current macOS and Windows maintenance uses v1.2.0, whose detailed parameters are
+always enabled. The v1.1.0 ZIPs and their validation records remain historical;
+`Windows/archive/v1.0.0/` is unchanged. Current source packages are
+`macOS/QIIME2-Provenance-Studio-macOS-source-v1.2.0.zip` and
+`Windows/QIIME2-Provenance-Studio-Windows-source-v1.2.0.zip`.
 
 On **2026-10-13**, all 19 filesystem Markdown files were normalized to English
 filenames and complete bilingual text, with English first and Chinese second.
-This includes ignored archives and bundled documentation. The application code
-and version numbers retain their previous behavior; affected packaging, resource
+This includes ignored archives and bundled documentation. At that documentation-only step, application behavior
+and version numbers were unchanged; affected packaging, resource
 signatures and checksums are refreshed to reflect the documentation changes.
 Markdown files inside the release ZIPs are synchronized with the revised copies.
 
@@ -138,9 +153,9 @@ python scripts/download_runtime.py ../build-inputs
 python scripts/build_windows.py --downloads ../build-inputs --wheels ../build-inputs/wheels --zig /path/to/zig --destination ../dist/Provenance-Studio-Windows-x64
 ```
 
-These commands are maintenance instructions. The directory migration and this
-documentation update do not create new development environments or claim new
-functional test runs. `scripts/validate_real.py` can compare external QZA/QZV
+These commands are maintenance instructions. Actual validation results are
+recorded separately for each release; historical figures do not establish
+acceptance of a newer application build. `scripts/validate_real.py` can compare external QZA/QZV
 files against a separately supplied original parser. The scientific test archives
 and the original single-file parser were not included in the migrated deliveries.
 
@@ -207,8 +222,11 @@ running, building and testing instructions.
 
 ### Verification scope and licenses
 
-The original v1.1.0 delivery records show 23 tests per platform and comparisons
-against 36 real QZA/QZV archives. Windows runtime acceptance used Wine 11.0 on
+The historical v1.1.0 delivery records show 23 tests per platform and comparisons
+against 36 real QZA/QZV archives, with GUI checks covering 115 steps and 894
+recorded parameters. These figures describe v1.1.0 and are not claims of
+v1.2.0 acceptance; current validation is stored independently in each platform
+delivery directory. Windows runtime acceptance used Wine 11.0 on
 macOS arm64; native Windows hardware testing remains pending. The migration
 verified copied content, symlinks and the macOS signature. Documentation checks
 and archive checks are kept separate from those historical functional results.
@@ -237,7 +255,9 @@ Embedded dependencies also retain their own distribution metadata and licenses.
 以后在本目录下修改源码、维护说明、构建和保存验证结果。日常开发入口为
 `macOS/source/` 与 `Windows/source/`。两者分别构建和交付；公共解析逻辑发生修改时，
 应同步检查两平台对应实现。旧 Codex outputs 和 Storage3 项目目录作为历史来源，
-后续不再向这些旧位置同步更新。Git 初始化与管理由项目所有者手动完成。
+后续不再向这些旧位置同步更新。Git 由项目所有者手动管理。应用更新、构建和验证
+均不自动执行任何 Git 命令，包括状态、差异、暂存、提交、标签、拉取、推送、
+初始化仓库或修改远程。
 
 ### 完整本地目录布局
 
@@ -246,15 +266,15 @@ qiime2-provenance-parser/
 ├── README.md                       项目整体说明与维护入口
 ├── AGENTS.md                       后续维护位置与项目约定
 ├── .gitignore                      源码仓库与本地生成产物的边界
-├── macOS/                          macOS arm64 v1.1.0 的完整交付
+├── macOS/                          macOS arm64 v1.2.0 的完整交付
 │   ├── source/                     macOS 开发源码、构建脚本、测试及许可证
 │   ├── QIIME 2 Provenance Studio.app
-│   ├── QIIME2-Provenance-Studio-macOS-arm64-v1.1.0.zip
+│   ├── QIIME2-Provenance-Studio-macOS-arm64-v1.2.0.zip
 │   └── …                           源码 ZIP、使用说明、截图和历史验证记录
-├── Windows/                        Windows x64 当前版本 v1.1.0
+├── Windows/                        Windows x64 当前版本 v1.2.0
 │   ├── source/                     Windows 开发源码、原生启动器和构建脚本
 │   ├── Provenance-Studio-Windows-x64/
-│   ├── QIIME2-Provenance-Studio-Windows-x64-v1.1.0.zip
+│   ├── QIIME2-Provenance-Studio-Windows-x64-v1.2.0.zip
 │   ├── …                           源码 ZIP、使用说明、截图和历史验证记录
 │   └── archive/v1.0.0/             指定 Windows-x64 旧目录的完整副本
 ├── docs/
@@ -268,26 +288,37 @@ qiime2-provenance-parser/
 ### 使用程序
 
 - macOS：打开 `macOS/QIIME 2 Provenance Studio.app`，适用于 Apple Silicon Mac。
-- Windows：完整解压 `Windows/QIIME2-Provenance-Studio-Windows-x64-v1.1.0.zip`，
+- Windows：完整解压 `Windows/QIIME2-Provenance-Studio-Windows-x64-v1.2.0.zip`，
   双击其中的 `Provenance Studio.exe`。保留相邻的 `app`、`runtime` 和 `licenses` 目录。
-- 拖入 QZA/QZV 后点击「解析全部文件」。勾选 **Verbose：显示 QIIME 参数**，
-  可在「QIIME 参数」页按证据步骤查看记录参数；复制和导出使用相同的开关状态。
+- 拖入 QZA/QZV 后点击 **Parse All Files**。默认 **QIIME Parameters** 页按步骤
+  显示参数名、JSON 值、执行 UUID 和 ZIP 内证据位置。完整详细模式始终启用，
+  已移除 Verbose 切换控件。**Evidence Chain**、**Full Report**、复制和所有
+  GUI 导出均包含记录参数，原始 YAML 保持完整。
+- 界面全部采用英文，配色为白色面板、深灰控件及灰阶选中和焦点反馈。界面文本
+  使用 11 pt 系统字体，Windows 优先 Segoe UI；等宽证据文本使用 11 pt macOS
+  Menlo 或 Windows Consolas，不可用时使用系统字体。参数表列标题加粗，不设置
+  自定义底纹或颜色；证据值与原始文件名保留原来的语言。
 - 运行交付应用无需安装 Python、conda 或 QIIME 2。具体使用方法见
   [macOS 源码说明](macOS/source/README.md) 与 [Windows 源码说明](Windows/source/README.md)。
 
 ### 版本与迁入来源
 
-2026-10-09 的迁入保持了来源文件原内容，包含隐藏文件、开发缓存和 macOS 应用内部符号链接。
+以下为 v1.2.0 更新之前的迁入历史。2026-10-09 的迁入保持了来源文件原内容，包含隐藏文件、开发缓存和 macOS 应用内部符号链接。
 
 2026-10-13 对项目全部 19 个文件系统 Markdown 文件统一采用英文命名和英文在前、
-中文在后的完整双语内容，包含旧版归档及应用内说明副本。程序行为和版本号保留原状态；
+中文在后的完整双语内容，包含旧版归档及应用内说明副本。当时的文档整理保持程序行为和版本号；
 受影响的交付压缩包、资源签名及校验清单同步更新，ZIP 内 Markdown 与修订后的副本一致。
 
-1. `macOS/` 完整复制自原 `outputs/macOS-arm64-v1.1.0/`，当前版本 v1.1.0。
+1. `macOS/` 完整复制自原 `outputs/macOS-arm64-v1.1.0/`，迁入时版本为 v1.1.0。
 2. `Windows/archive/v1.0.0/` 完整复制自本次指定的 `outputs/Windows-x64/`。
    该目录为 v1.0.0，保留其原源码、应用、压缩包和说明。
-3. `Windows/` 的当前交付另外收录原 `outputs/Windows-x64-v1.1.0/`，
-   以 v1.1.0 作为后续维护版本，保留上次新增的 Verbose 参数页。
+3. `Windows/` 另外收录原 `outputs/Windows-x64-v1.1.0/`，该历史版本新增
+   可选择开启的 Verbose 参数页。
+
+当前两平台维护版本为 v1.2.0，完整参数默认常开。v1.1.0 ZIP 及对应验证记录
+继续作为历史材料，`Windows/archive/v1.0.0/` 不变。当前源码包为
+`macOS/QIIME2-Provenance-Studio-macOS-source-v1.2.0.zip` 和
+`Windows/QIIME2-Provenance-Studio-Windows-source-v1.2.0.zip`。
 
 各交付中原有的 JSON、XML 和说明文件是对应版本的历史验证证据，可能含有旧绝对路径。
 原记录的文件大小及哈希描述原交付或迁移时点，不能作为双语文档更新后压缩包的当前测量；
@@ -330,7 +361,8 @@ python scripts/download_runtime.py ../build-inputs
 python scripts/build_windows.py --downloads ../build-inputs --wheels ../build-inputs/wheels --zig /path/to/zig --destination ../dist/Provenance-Studio-Windows-x64
 ```
 
-上述命令为后续维护参考，本次目录迁移没有创建开发环境或重新构建应用。
+上述命令为维护参考；实际验证结果按发布版本单独记录，历史数字不作为新构建
+已通过验收的结论。
 `scripts/validate_real.py` 可用外部测试数据和指定的旧解析器进行兼容性比较；
 QZA/QZV 测试数据与原始单文件解析器未随这两个交付目录迁入。
 
@@ -383,7 +415,9 @@ python tools/update_file_report.py
 
 ### 验证范围与许可证
 
-v1.1.0 原交付记录两平台各通过 23 项测试，并核对 36 个真实 QZA/QZV。
+历史 v1.1.0 交付记录两平台各通过 23 项测试，并核对 36 个真实 QZA/QZV，
+GUI 检查覆盖 115 个步骤及 894 项记录参数。以上数字描述 v1.1.0，
+不作为 v1.2.0 已完成验收的结论；当前验证记录在各平台交付目录独立保存。
 Windows 的运行验收环境为 Wine 11.0 / macOS arm64，原生 Windows 实机验证仍待完成。
 本次迁移的核验是复制内容、符号链接和 macOS 签名完整性的检查，不将历史测试
 表述为在新目录重新执行的测试。

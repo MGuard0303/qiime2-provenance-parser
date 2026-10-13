@@ -45,7 +45,7 @@ collection = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False, name="Pro
         content += f"""
 app = BUNDLE(collection, name="QIIME 2 Provenance Studio.app", icon={icon_argument},
     bundle_identifier="org.provenance-studio.qiime2", info_plist={{
-        "CFBundleShortVersionString": "1.1.0", "CFBundleVersion": "1.1.0",
+        "CFBundleShortVersionString": "1.2.0", "CFBundleVersion": "1.2.0",
         "NSHighResolutionCapable": True, "LSMinimumSystemVersion": "13.0",
         "CFBundleDocumentTypes": [{{"CFBundleTypeName": "QIIME 2 archive",
             "CFBundleTypeExtensions": ["qza", "qzv"], "CFBundleTypeRole": "Viewer",

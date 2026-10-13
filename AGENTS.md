@@ -20,8 +20,10 @@
   from the minimal GitHub source repository. Source-only clones use the retained
   source tests and build checks. The local report includes all files and symlinks
   without recursively following symlink directories.
-- The owner manually adds and manages Git. Do not initialize a repository, create
-  remotes or commit automatically.
+- Git operations require an explicit user request for the specific operation.
+  After program updates, do not automatically run any Git command, including
+  status, diff, add, commit, push, initialization or remote management. Verify
+  files directly and leave Git management to the owner.
 - Avoid the prohibited Chinese response constructions listed in the Chinese
   section below.
 - Tables use 11-point text, bold column headings, and no background fills or
@@ -47,7 +49,9 @@
 - 完整本地项目中，文件清单工具存在时可用 `python tools/update_file_report.py` 刷新报告。
   此工具不纳入 GitHub 最小源码仓库；纯源码克隆使用保留的测试与构建检查。
   本地报告覆盖全部文件和符号链接，扫描时不递归跟随符号链接。
-- Git 由用户手动添加和管理；不要自行初始化仓库、创建远程或提交。
+- Git 操作必须有用户针对该具体操作的明确请求。更新程序后，禁止自动执行任何
+  Git 命令，包括 status、diff、add、commit、push、初始化及远程管理。
+  直接检查文件完成验证，Git 由用户手动管理。
 - 回答时避免使用“不是，而是”和“我反而”。
 - 如创建表格，不设置底纹或颜色；列标题只加粗，字号使用 11。
 - 项目所有文件采用英文文件名。Markdown 内容使用完整中英双语，英文段落在前，
