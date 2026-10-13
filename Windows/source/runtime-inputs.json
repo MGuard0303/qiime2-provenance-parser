@@ -1,0 +1,17 @@
+{
+  "python_version": "3.13.15",
+  "qt_version": "6.8.3",
+  "sha256": {
+    "python-embed-amd64.zip": "d1f04d990aee1253d8569e8e5104e30fa9f5fa830899f14843448872d936a2cf",
+    "PySide6_Essentials-6.8.3-cp39-abi3-win_amd64.whl": "3c0fae5550aff69f2166f46476c36e0ef56ce73d84829eac4559770b0c034b07",
+    "pyyaml-6.0.3-cp313-cp313-win_amd64.whl": "79005a0d97d5ddabfeeea4cf676af11e647e41d81c9a7722a193022accdb6b7c",
+    "shiboken6-6.8.3-cp39-abi3-win_amd64.whl": "bca3a94513ce9242f7d4bbdca902072a1631888e0aa3a8711a52cc5dbe93588f"
+  },
+  "urls": {
+    "python-embed-amd64.zip": "https://www.python.org/ftp/python/3.13.15/python-3.13.15-embed-amd64.zip",
+    "PySide6_Essentials-6.8.3-cp39-abi3-win_amd64.whl": "https://files.pythonhosted.org/packages/8e/0f/5d8c6da7586e57ee032643e0c0e62335ef1a1add1a980160ddd1654f1d8d/PySide6_Essentials-6.8.3-cp39-abi3-win_amd64.whl",
+    "shiboken6-6.8.3-cp39-abi3-win_amd64.whl": "https://files.pythonhosted.org/packages/aa/29/e77f3fba5337f2d98f977eece0fd24cda6cf7d83be2699514d2ca1d34f6c/shiboken6-6.8.3-cp39-abi3-win_amd64.whl",
+    "pyyaml-6.0.3-cp313-cp313-win_amd64.whl": "https://files.pythonhosted.org/packages/97/c9/39d5b874e8b28845e4ec2202b5da735d0199dbe5b8fb85f91398814a9a46/pyyaml-6.0.3-cp313-cp313-win_amd64.whl"
+  },
+  "wheel_publisher_hashes_verified": true
+}
