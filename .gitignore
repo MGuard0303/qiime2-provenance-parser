@@ -1,0 +1,63 @@
+# Minimal maintained repository: root guidance and the two current source trees.
+# Release packages, runtimes, historical copies, previews, duplicate outer docs,
+# and local inventory tools/reports remain on disk but are not submitted to Git.
+# Extend this allowlist explicitly when adding another required top-level area.
+/*
+!/.gitignore
+!/README.md
+!/AGENTS.md
+!/LICENSE
+!/LICENSE.*
+!/macOS/
+!/Windows/
+/macOS/*
+/Windows/*
+!/macOS/source/
+!/Windows/source/
+
+# Reproducible generated icons. macOS builds invoke make_icon.py when needed;
+# Windows builds create app.ico from the required, tracked assets/app.png.
+/macOS/source/assets/app.icns
+/macOS/source/assets/app.iconset/
+/Windows/source/assets/app.ico
+
+# Caches and generated Python packaging metadata inside retained source trees
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Local environments and generated/downloaded build inputs
+.venv/
+venv/
+.env/
+.conda/
+build/
+dist/
+build-inputs/
+downloads/
+wheels/
+*.spec
+*.log
+*.app/
+
+# Scientific inputs are external; tests generate their own temporary fixtures
+*.qza
+*.qzv
+
+# Operating-system and editor metadata
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~

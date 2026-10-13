@@ -1,0 +1,8 @@
+name: qiime2-provenance-gui
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - -e .[dev]
