@@ -34,6 +34,7 @@ commit, tag, fetch, pull, push, initialization or remote changes.
 qiime2-provenance-parser/
 ├── README.md                       Project overview and maintenance entry
 ├── AGENTS.md                       Instructions for future coding agents
+├── LICENSE                         MIT license for project-owned code
 ├── .gitignore                      Source and generated-artifact boundaries
 ├── macOS/                          Current macOS arm64 v1.2.0 delivery
 │   ├── source/                     Source, build scripts, tests and licenses
@@ -179,8 +180,8 @@ local directory retains release packages and maintenance records separately.
 
 Keep these files in Git:
 
-- Root `README.md`, `AGENTS.md` and `.gitignore`. A project-owned root `LICENSE`
-  or `LICENSE.*` file is also allowed if one is added later.
+- Root `README.md`, `AGENTS.md`, `.gitignore` and `LICENSE`. The root `LICENSE`
+  contains the MIT license for project-owned code.
 - The two source packages, launchers, Windows native launcher/manifest, build and
   validation scripts, and the existing automated tests.
 - Both `pyproject.toml` files, environment definitions, requirements and lock
@@ -254,6 +255,9 @@ macOS arm64; native Windows hardware testing remains pending. The migration
 verified copied content, symlinks and the macOS signature. Documentation checks
 and archive checks are kept separate from those historical functional results.
 
+Project-owned code is licensed under the [MIT License](LICENSE), with copyright
+`Copyright (c) 2026 Lixuan Mu`. Third-party components retain their own licenses.
+
 The tool reads provenance only. It does not execute QIIME 2 analyses or verify
 the actual archives' data-payload integrity. Each platform retains third-party
 component notices and license texts in `THIRD_PARTY_NOTICES.md` and `licenses/`.
@@ -288,6 +292,7 @@ Embedded dependencies also retain their own distribution metadata and licenses.
 qiime2-provenance-parser/
 ├── README.md                       项目整体说明与维护入口
 ├── AGENTS.md                       后续维护位置与项目约定
+├── LICENSE                         项目自有源码的 MIT 许可证
 ├── .gitignore                      源码仓库与本地生成产物的边界
 ├── macOS/                          macOS arm64 v1.2.0 的完整交付
 │   ├── source/                     macOS 开发源码、构建脚本、测试及许可证
@@ -404,8 +409,8 @@ python tools/update_file_report.py
 
 保留在 Git 中：
 
-- 根目录 `README.md`、`AGENTS.md` 和 `.gitignore`。以后新增自有源码的根目录
-  `LICENSE` 或 `LICENSE.*` 文件时，也允许提交。
+- 根目录 `README.md`、`AGENTS.md`、`.gitignore` 和 `LICENSE`。根目录 `LICENSE`
+  为项目自有源码的 MIT 许可证。
 - 两平台源码包、启动入口、Windows 原生启动器及 manifest、构建与验证脚本、现有自动测试。
 - 两套 `pyproject.toml`、环境定义、requirements 及锁定文件，以及 Windows 的
   `runtime-inputs.json`，保证依赖和运行库下载配置可复现。
@@ -460,6 +465,9 @@ GUI 检查覆盖 115 个步骤及 894 项记录参数。以上数字描述 v1.1.
 Windows 的运行验收环境为 Wine 11.0 / macOS arm64，原生 Windows 实机验证仍待完成。
 本次迁移的核验是复制内容、符号链接和 macOS 签名完整性的检查，不将历史测试
 表述为在新目录重新执行的测试。
+
+项目自有源码采用 [MIT 许可证](LICENSE)，版权署名为 `Copyright (c) 2026 Lixuan Mu`。
+第三方组件继续适用各自许可证。
 
 本工具读取 provenance，不执行 QIIME 2 分析，也不校验真实归档数据区的完整性。
 第三方组件声明与许可证分别保存在各平台的 `THIRD_PARTY_NOTICES.md` 和 `licenses/`
